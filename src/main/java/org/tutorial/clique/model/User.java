@@ -82,6 +82,10 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
+        return this.email;
+    }
+
+    public String getUsernameForController() {
         return this.username;
     }
     @Override
