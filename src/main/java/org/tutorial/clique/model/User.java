@@ -3,7 +3,6 @@ package org.tutorial.clique.model;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -16,7 +15,6 @@ import java.util.Set;
 @Data
 @Table(name = "users")
 @AllArgsConstructor
-@NoArgsConstructor
 public class User implements UserDetails {
 
     @Id
@@ -45,7 +43,12 @@ public class User implements UserDetails {
     private Set<Server> servers = new HashSet<>();
 
     public User(String username, String email, String encode) {
+        this.username = username;
+        this.email = email;
+        this.password = encode;
+    }
 
+    public User() {
     }
 
     @Override

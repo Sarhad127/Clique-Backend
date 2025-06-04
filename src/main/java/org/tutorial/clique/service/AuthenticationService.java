@@ -1,12 +1,12 @@
 package org.tutorial.clique.service;
 
 import jakarta.mail.MessagingException;
-import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.tutorial.clique.configuration.MyUserDetailService;
 import org.tutorial.clique.dto.LoginUserDto;
 import org.tutorial.clique.dto.RegisterUserDto;
 import org.tutorial.clique.exceptions.DuplicateUserException;
@@ -22,12 +22,18 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
+    private final MyUserDetailService myUserDetailService;
 
-    public AuthenticationService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, EmailService emailService) {
+    public AuthenticationService(UserRepository userRepository,
+                                 PasswordEncoder passwordEncoder,
+                                 AuthenticationManager authenticationManager,
+                                 EmailService emailService,
+                                 MyUserDetailService myUserDetailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.emailService = emailService;
+        this.myUserDetailService = myUserDetailService;
     }
 
     public void signup(RegisterUserDto input) {
@@ -44,8 +50,7 @@ public class AuthenticationService {
     }
 
     public User authenticate(LoginUserDto input) {
-        User user = userRepository.findByEmail(input.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = (User) myUserDetailService.loadUserByUsername(input.getEmail());
 
         try {
             authenticationManager.authenticate(

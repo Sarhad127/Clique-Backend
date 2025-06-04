@@ -1,6 +1,5 @@
 package org.tutorial.clique.dto;
 
-
 import lombok.*;
 
 @Data
@@ -9,7 +8,6 @@ import lombok.*;
 public class LoginUserDto {
 
     private String email;
-    private String username;
     private String password;
 
     public String getEmail() {
@@ -28,11 +26,11 @@ public class LoginUserDto {
         this.password = password;
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
+    @Override
+    public String toString() {
+        return "LoginUserDto{" +
+                "email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                '}';
     }
 }

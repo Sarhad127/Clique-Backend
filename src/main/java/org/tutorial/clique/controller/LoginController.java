@@ -1,8 +1,8 @@
 package org.tutorial.clique.controller;
 
-import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.DisabledException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,7 +13,8 @@ import org.tutorial.clique.model.User;
 import org.tutorial.clique.service.AuthenticationService;
 import org.tutorial.clique.service.JwtService;
 
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
@@ -21,6 +22,7 @@ public class LoginController {
 
     private final JwtService jwtService;
     private final AuthenticationService authenticationService;
+    private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
     public LoginController(final JwtService jwtService, final AuthenticationService authenticationService) {
         this.jwtService = jwtService;
@@ -29,25 +31,23 @@ public class LoginController {
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticate(@RequestBody LoginUserDto loginUserDto) {
+        logger.info("Received login payload: {}", loginUserDto);
         try {
             User authenticatedUser = authenticationService.authenticate(loginUserDto);
             String jwtToken = jwtService.generateToken(authenticatedUser);
-            String authHeader = "Bearer " + jwtToken;
 
-            return ResponseEntity.ok().body(Collections.singletonMap("token", jwtToken));
+            Map<String, String> tokenResponse = new HashMap<>();
+            tokenResponse.put("token", jwtToken);
+            return ResponseEntity.ok().body(tokenResponse);
 
-        } catch (DisabledException e) {
-            try {
-                return ResponseEntity.status(400).body(
-                        Collections.singletonMap("error", "UNVERIFIED_USER")
-                );
-            } catch (Exception ex) {
-                return ResponseEntity.status(500).body("Failed to resend verification code. Please try again.");
-            }
         } catch (Exception e) {
-            return ResponseEntity.status(400).body("Invalid credentials");
+            System.out.println("Authentication failed: " + e.getMessage());
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "INVALID_CREDENTIALS");
+            return ResponseEntity.status(400).body(errorResponse);
         }
     }
+
     @PostMapping("/signup")
     public ResponseEntity<?> register(@RequestBody RegisterUserDto registerUserDto) {
         try {
