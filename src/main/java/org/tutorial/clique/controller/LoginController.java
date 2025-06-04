@@ -1,8 +1,10 @@
 package org.tutorial.clique.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,7 +24,6 @@ public class LoginController {
 
     private final JwtService jwtService;
     private final AuthenticationService authenticationService;
-    private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
     public LoginController(final JwtService jwtService, final AuthenticationService authenticationService) {
         this.jwtService = jwtService;
@@ -31,20 +32,33 @@ public class LoginController {
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticate(@RequestBody LoginUserDto loginUserDto) {
-        logger.info("Received login payload: {}", loginUserDto);
         try {
             User authenticatedUser = authenticationService.authenticate(loginUserDto);
             String jwtToken = jwtService.generateToken(authenticatedUser);
 
             Map<String, String> tokenResponse = new HashMap<>();
             tokenResponse.put("token", jwtToken);
-            return ResponseEntity.ok().body(tokenResponse);
+            return ResponseEntity.ok(tokenResponse);
+
+        } catch (UsernameNotFoundException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "EMAIL_NOT_FOUND");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+
+        } catch (BadCredentialsException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "WRONG_PASSWORD");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+
+        } catch (DisabledException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "ACCOUNT_NOT_VERIFIED");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
 
         } catch (Exception e) {
-            System.out.println("Authentication failed: " + e.getMessage());
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("error", "INVALID_CREDENTIALS");
-            return ResponseEntity.status(400).body(errorResponse);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
     }
 

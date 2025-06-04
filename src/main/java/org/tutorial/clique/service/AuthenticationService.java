@@ -2,8 +2,10 @@ package org.tutorial.clique.service;
 
 import jakarta.mail.MessagingException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.tutorial.clique.configuration.MyUserDetailService;
@@ -50,20 +52,25 @@ public class AuthenticationService {
     }
 
     public User authenticate(LoginUserDto input) {
-        User user = (User) myUserDetailService.loadUserByUsername(input.getEmail());
-
         try {
+            User user = (User) myUserDetailService.loadUserByUsername(input.getEmail());
+
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             input.getEmail(),
                             input.getPassword()
                     )
             );
-        } catch (DisabledException ex) {
-            throw new DisabledException("Account not verified");
-        }
 
-        return user;
+            return user;
+
+        } catch (UsernameNotFoundException e) {
+            throw new UsernameNotFoundException("EMAIL_NOT_FOUND");
+        } catch (BadCredentialsException e) {
+            throw new BadCredentialsException("WRONG_PASSWORD");
+        } catch (DisabledException e) {
+            throw new DisabledException("ACCOUNT_NOT_VERIFIED");
+        }
     }
 
     private void sendVerificationEmail(User user) {
