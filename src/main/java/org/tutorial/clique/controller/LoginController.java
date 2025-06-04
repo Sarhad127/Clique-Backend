@@ -71,4 +71,40 @@ public class LoginController {
             return ResponseEntity.status(400).body("Registration failed: " + e.getMessage());
         }
     }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        if (email == null || email.isEmpty()) {
+            return ResponseEntity.badRequest().body("Email is required");
+        }
+
+        try {
+            authenticationService.createPasswordResetToken(email);
+            return ResponseEntity.ok("Password reset link sent to your email.");
+        } catch (UsernameNotFoundException e) {
+            return ResponseEntity.ok("Password reset link sent to your email.");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error processing password reset");
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
+        String token = request.get("token");
+        String newPassword = request.get("newPassword");
+
+        if (token == null || token.isEmpty() || newPassword == null || newPassword.isEmpty()) {
+            return ResponseEntity.badRequest().body("Token and new password are required");
+        }
+
+        try {
+            authenticationService.resetPassword(token, newPassword);
+            return ResponseEntity.ok("Password reset successful");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Failed to reset password");
+        }
+    }
 }

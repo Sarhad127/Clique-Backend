@@ -15,7 +15,8 @@ import org.tutorial.clique.exceptions.DuplicateUserException;
 import org.tutorial.clique.model.User;
 import org.tutorial.clique.repository.UserRepository;
 
-import java.util.Random;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 public class AuthenticationService {
@@ -98,9 +99,40 @@ public class AuthenticationService {
         }
     }
 
-    private String generateVerificationCode() {
-        Random random = new Random();
-        int code = random.nextInt(900000) + 100000;
-        return String.valueOf(code);
+    public void createPasswordResetToken(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        String token = UUID.randomUUID().toString();
+        user.setResetPasswordToken(token);
+        user.setResetPasswordTokenExpiry(LocalDateTime.now().plusHours(1));
+
+        userRepository.save(user);
+
+        String resetLink = "http://localhost:3000/reset-password?token=" + token;
+        String subject = "Password Reset Request";
+        String message = "<p>To reset your password, click the link below:</p>"
+                + "<a href=\"" + resetLink + "\">Reset Password</a>"
+                + "<p>This link will expire in 1 hour.</p>";
+
+        try {
+            emailService.sendVerificationEmail(user.getEmail(), subject, message);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void resetPassword(String token, String newPassword) {
+        User user = userRepository.findByResetPasswordToken(token)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid password reset token"));
+
+        if (user.getResetPasswordTokenExpiry() == null || user.getResetPasswordTokenExpiry().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Password reset token has expired");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setResetPasswordToken(null);
+        user.setResetPasswordTokenExpiry(null);
+        userRepository.save(user);
     }
 }
