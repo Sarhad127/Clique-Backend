@@ -36,14 +36,10 @@ public class MessageController {
     @PostMapping
     public ResponseEntity<MessageDto> sendMessage(@RequestBody MessageDto messageDto) {
         try {
-            System.out.println("Received senderId: " + messageDto.getSenderId());
-            System.out.println("Received receiverId: " + messageDto.getReceiverId());
             User sender = userRepository.findById(messageDto.getSenderId())
                     .orElseThrow(() -> new RuntimeException("Sender not found"));
             User receiver = userRepository.findById(messageDto.getReceiverId())
                     .orElseThrow(() -> new RuntimeException("Receiver not found"));
-            System.out.println("Sender: " + sender.getUsername());
-            System.out.println("Receiver: " + receiver.getUsername());
             Message newMessage = new Message(sender, receiver, messageDto.getContent(), LocalDateTime.now(), MessageStatus.SENT);
             messageService.sendMessage(sender.getId(), receiver.getId(), messageDto.getContent());
             MessageDto newMessageDto = MessageDto.fromEntity(newMessage);
