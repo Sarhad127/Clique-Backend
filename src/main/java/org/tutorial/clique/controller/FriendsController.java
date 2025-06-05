@@ -77,7 +77,9 @@ public class FriendsController {
         }
 
         requester.getFriends().add(friend);
+        friend.getFriends().add(requester);
         userRepository.save(requester);
+        userRepository.save(friend);
 
         return ResponseEntity.ok("Friend added successfully.");
     }
