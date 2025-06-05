@@ -11,6 +11,7 @@ import org.tutorial.clique.model.User;
 import org.tutorial.clique.repository.UserRepository;
 import org.tutorial.clique.service.JwtService;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -79,5 +80,48 @@ public class UserController {
         );
 
         return ResponseEntity.ok(dto);
+    }
+
+    @PutMapping("/username")
+    public ResponseEntity<?> updateUsername(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestBody Map<String, String> requestBody) {
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String token = authHeader.substring(7);
+        String email;
+        try {
+            email = jwtService.extractUsername(token);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+        if (!jwtService.isTokenValid(token, userDetails)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+
+        User user = userOptional.get();
+
+        String newUsername = requestBody.get("username");
+        if (newUsername == null || newUsername.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("Username cannot be empty");
+        }
+
+        user.setUsername(newUsername.trim());
+        userRepository.save(user);
+
+        return ResponseEntity.ok(Map.of(
+                "message", "Username updated successfully",
+                "username", user.getUsernameForController()
+        ));
     }
 }
