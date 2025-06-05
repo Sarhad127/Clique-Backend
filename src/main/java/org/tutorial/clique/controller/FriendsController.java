@@ -8,6 +8,7 @@ import org.tutorial.clique.configuration.MyUserDetailService;
 import org.tutorial.clique.model.User;
 import org.tutorial.clique.repository.UserRepository;
 import org.tutorial.clique.service.JwtService;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.Optional;
 
@@ -19,15 +20,17 @@ public class FriendsController {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final MyUserDetailService myUserDetailService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     public FriendsController(UserRepository userRepository,
                              JwtService jwtService,
-                             MyUserDetailService myUserDetailService) {
+                             MyUserDetailService myUserDetailService,
+                             SimpMessagingTemplate messagingTemplate) {
         this.userRepository = userRepository;
         this.jwtService = jwtService;
         this.myUserDetailService = myUserDetailService;
+        this.messagingTemplate = messagingTemplate;
     }
-
 
     @PostMapping("/add")
     public ResponseEntity<String> addFriend(
@@ -80,6 +83,10 @@ public class FriendsController {
         friend.getFriends().add(requester);
         userRepository.save(requester);
         userRepository.save(friend);
+
+        String notificationMessage = requester.getUsername() + " sent you a friend request.";
+        messagingTemplate.convertAndSend("/server/friendRequest/" + friend.getUsername(), notificationMessage);
+
 
         return ResponseEntity.ok("Friend added successfully.");
     }
