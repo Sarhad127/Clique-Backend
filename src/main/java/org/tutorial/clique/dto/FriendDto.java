@@ -1,47 +1,30 @@
 package org.tutorial.clique.dto;
 
-import java.util.Set;
-
-public class UserDto {
-
+public class FriendDto {
     private Long id;
-    private String email;
     private String username;
     private String avatarUrl;
     private String avatarColor;
     private String avatarInitials;
-    private Set<FriendDto> friends;
-    private Set<Long> serverIds;
+    private String email;
 
-    public UserDto() {}
+    public FriendDto() {}
 
-    public UserDto(Long id, String email, String username,
-                   String avatarUrl, String avatarColor, String avatarInitials,
-                   Set<FriendDto> friends, Set<Long> serverIds) {
+    public FriendDto(Long id, String email, String avatarInitials, String avatarColor, String avatarUrl, String username) {
         this.id = id;
         this.email = email;
-        this.username = username;
-        this.avatarUrl = avatarUrl;
-        this.avatarColor = avatarColor;
         this.avatarInitials = avatarInitials;
-        this.friends = friends;
-        this.serverIds = serverIds;
+        this.avatarColor = avatarColor;
+        this.avatarUrl = avatarUrl;
+        this.username = username;
     }
 
-    public Set<Long> getServerIds() {
-        return serverIds;
+    public String getEmail() {
+        return email;
     }
 
-    public void setServerIds(Set<Long> serverIds) {
-        this.serverIds = serverIds;
-    }
-
-    public Set<FriendDto> getFriends() {
-        return friends;
-    }
-
-    public void setFriends(Set<FriendDto> friends) {
-        this.friends = friends;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getAvatarInitials() {
@@ -74,14 +57,6 @@ public class UserDto {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public Long getId() {

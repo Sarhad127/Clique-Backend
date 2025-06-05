@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.tutorial.clique.configuration.MyUserDetailService;
+import org.tutorial.clique.dto.FriendDto;
 import org.tutorial.clique.dto.UserDto;
 import org.tutorial.clique.model.User;
 import org.tutorial.clique.repository.UserRepository;
@@ -63,11 +64,18 @@ public class UserController {
                 user.getAvatarColor(),
                 user.getAvatarInitials(),
                 user.getFriends().stream()
-                        .map(User::getId)
-                        .collect(Collectors.<Long>toSet()),
+                        .map(friend -> new FriendDto(
+                                friend.getId(),
+                                friend.getEmail(),
+                                friend.getAvatarInitials(),
+                                friend.getAvatarColor(),
+                                friend.getAvatarUrl(),
+                                friend.getUsernameForController()
+                        ))
+                        .collect(Collectors.toSet()),
                 user.getServers().stream()
                         .map(server -> server.getId())
-                        .collect(Collectors.<Long>toSet())
+                        .collect(Collectors.toSet())
         );
 
         return ResponseEntity.ok(dto);
