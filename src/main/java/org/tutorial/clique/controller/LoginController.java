@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.tutorial.clique.dto.LoginUserDto;
 import org.tutorial.clique.dto.RegisterUserDto;
 import org.tutorial.clique.model.User;
+import org.tutorial.clique.repository.UserRepository;
 import org.tutorial.clique.service.AuthenticationService;
 import org.tutorial.clique.service.JwtService;
 
@@ -22,10 +23,14 @@ public class LoginController {
 
     private final JwtService jwtService;
     private final AuthenticationService authenticationService;
+    private final UserRepository userRepository;
 
-    public LoginController(final JwtService jwtService, final AuthenticationService authenticationService) {
+    public LoginController(JwtService jwtService,
+                           AuthenticationService authenticationService,
+                           UserRepository userRepository) {
         this.jwtService = jwtService;
         this.authenticationService = authenticationService;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/login")
@@ -104,5 +109,13 @@ public class LoginController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Failed to reset password");
         }
+    }
+
+    @GetMapping("/check-email")
+    public ResponseEntity<Map<String, Boolean>> checkEmail(@RequestParam String email) {
+        boolean exists = userRepository.existsByEmail(email);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("available", !exists);
+        return ResponseEntity.ok(response);
     }
 }
