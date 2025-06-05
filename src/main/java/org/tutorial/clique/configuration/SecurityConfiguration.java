@@ -36,7 +36,8 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/**", "/user/**", "/friends/**",
-                                "/webSocket/**", "/server", "/app", "/messages/**", "/friends/**").permitAll()
+                                "/webSocket/**", "/server", "/app", "/messages/**", "/friends/**", "/chat.send/**",
+                                "/ws/**", "/topic", "/app/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
