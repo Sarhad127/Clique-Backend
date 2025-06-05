@@ -69,9 +69,10 @@ public class LoginController {
     public ResponseEntity<?> register(@RequestBody RegisterUserDto registerUserDto) {
         try {
             authenticationService.signup(registerUserDto);
-            return ResponseEntity.ok().body("Registration successful! Please check your email to verify your account.");
+            return ResponseEntity.ok(Map.of("message", "Registration successful!"));
         } catch (Exception e) {
-            return ResponseEntity.status(400).body("Registration failed: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(400).body(Map.of("message", "Registration failed: " + e.getMessage()));
         }
     }
 

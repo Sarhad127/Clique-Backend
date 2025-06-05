@@ -44,9 +44,6 @@ public class AuthenticationService {
             throw new DuplicateUserException("Email is already taken.");
         }
 
-        if (userRepository.existsByUsername(input.getUsername())) {
-            throw new DuplicateUserException("Username is already taken.");
-        }
         User user = new User(input.getUsername(), input.getEmail(), passwordEncoder.encode(input.getPassword()));
         sendVerificationEmail(user);
         userRepository.save(user);
