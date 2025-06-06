@@ -75,9 +75,6 @@ public class UserController {
                                 friend.getDescription()
                         ))
                         .collect(Collectors.toSet()),
-                user.getServers().stream()
-                        .map(server -> server.getId())
-                        .collect(Collectors.toSet()),
                 user.getDescription()
         );
 

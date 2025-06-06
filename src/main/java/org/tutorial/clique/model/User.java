@@ -46,9 +46,6 @@ public class User implements UserDetails {
     )
     private Set<User> friends = new HashSet<>();
 
-    @ManyToMany(mappedBy = "members")
-    private Set<Server> servers = new HashSet<>();
-
     public User(String username, String email, String encode) {
         this.username = username;
         this.email = email;
@@ -166,14 +163,6 @@ public class User implements UserDetails {
 
     public void setFriends(Set<User> friends) {
         this.friends = friends;
-    }
-
-    public Set<Server> getServers() {
-        return servers;
-    }
-
-    public void setServers(Set<Server> servers) {
-        this.servers = servers;
     }
 
     public String getDescription() {

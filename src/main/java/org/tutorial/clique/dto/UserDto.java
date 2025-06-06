@@ -12,13 +12,12 @@ public class UserDto {
     private String avatarInitials;
     private String description;
     private Set<FriendDto> friends;
-    private Set<Long> serverIds;
 
     public UserDto() {}
 
     public UserDto(Long id, String email, String username,
                    String avatarUrl, String avatarColor, String avatarInitials,
-                   Set<FriendDto> friends, Set<Long> serverIds, String description) {
+                   Set<FriendDto> friends, String description) {
         this.id = id;
         this.email = email;
         this.username = username;
@@ -26,16 +25,7 @@ public class UserDto {
         this.avatarColor = avatarColor;
         this.avatarInitials = avatarInitials;
         this.friends = friends;
-        this.serverIds = serverIds;
         this.description = description;
-    }
-
-    public Set<Long> getServerIds() {
-        return serverIds;
-    }
-
-    public void setServerIds(Set<Long> serverIds) {
-        this.serverIds = serverIds;
     }
 
     public Set<FriendDto> getFriends() {
