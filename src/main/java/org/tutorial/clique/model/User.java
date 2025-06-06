@@ -32,6 +32,9 @@ public class User implements UserDetails {
     private String avatarColor;
     private String avatarInitials;
 
+    @Column(length = 500)
+    private String description;
+
     private String resetPasswordToken;
     private LocalDateTime resetPasswordTokenExpiry;
 
@@ -171,5 +174,13 @@ public class User implements UserDetails {
 
     public void setServers(Set<Server> servers) {
         this.servers = servers;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

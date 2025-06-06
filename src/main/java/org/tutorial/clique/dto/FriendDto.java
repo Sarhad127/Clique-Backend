@@ -7,16 +7,18 @@ public class FriendDto {
     private String avatarColor;
     private String avatarInitials;
     private String email;
+    private String description;
 
     public FriendDto() {}
 
-    public FriendDto(Long id, String email, String avatarInitials, String avatarColor, String avatarUrl, String username) {
+    public FriendDto(Long id, String email, String avatarInitials, String avatarColor, String avatarUrl, String username, String description) {
         this.id = id;
         this.email = email;
         this.avatarInitials = avatarInitials;
         this.avatarColor = avatarColor;
         this.avatarUrl = avatarUrl;
         this.username = username;
+        this.description = description;
     }
 
     public String getEmail() {
@@ -65,5 +67,13 @@ public class FriendDto {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

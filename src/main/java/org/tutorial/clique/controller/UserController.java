@@ -71,12 +71,14 @@ public class UserController {
                                 friend.getAvatarInitials(),
                                 friend.getAvatarColor(),
                                 friend.getAvatarUrl(),
-                                friend.getUsernameForController()
+                                friend.getUsernameForController(),
+                                friend.getDescription()
                         ))
                         .collect(Collectors.toSet()),
                 user.getServers().stream()
                         .map(server -> server.getId())
-                        .collect(Collectors.toSet())
+                        .collect(Collectors.toSet()),
+                user.getDescription()
         );
 
         return ResponseEntity.ok(dto);
@@ -122,6 +124,49 @@ public class UserController {
         return ResponseEntity.ok(Map.of(
                 "message", "Username updated successfully",
                 "username", user.getUsernameForController()
+        ));
+    }
+
+    @PutMapping("/description")
+    public ResponseEntity<?> updateDescription(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestBody Map<String, String> requestBody) {
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String token = authHeader.substring(7);
+        String email;
+        try {
+            email = jwtService.extractUsername(token);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+        if (!jwtService.isTokenValid(token, userDetails)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+
+        User user = userOptional.get();
+
+        String newDescription = requestBody.get("description");
+        if (newDescription == null) {
+            return ResponseEntity.badRequest().body("Description is missing");
+        }
+
+        user.setDescription(newDescription.trim());
+        userRepository.save(user);
+
+        return ResponseEntity.ok(Map.of(
+                "message", "Description updated successfully",
+                "description", user.getDescription()
         ));
     }
 }
