@@ -33,7 +33,7 @@ public class ChatDto {
                                 user.getAvatarInitials(),
                                 user.getAvatarColor(),
                                 user.getAvatarUrl(),
-                                user.getUsername(),
+                                user.getUsernameForController(),
                                 user.getDescription()))
                         .collect(Collectors.toSet()),
                 chat.getMessages().stream()
