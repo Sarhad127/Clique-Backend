@@ -30,6 +30,10 @@ public class Message {
     @Column(name = "status", nullable = false)
     private MessageStatus status;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "chat_id")
+    private Chat chat;
+
     public Message() {}
 
     public Message(User sender, User receiver, String content, LocalDateTime timestamp, MessageStatus status) {
@@ -86,5 +90,13 @@ public class Message {
 
     public void setStatus(MessageStatus status) {
         this.status = status;
+    }
+
+    public Chat getChat() {
+        return chat;
+    }
+
+    public void setChat(Chat chat) {
+        this.chat = chat;
     }
 }

@@ -37,7 +37,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/**", "/user/**", "/friends/**",
                                 "/webSocket/**", "/server", "/app", "/messages/**", "/friends/**", "/chat.send/**",
-                                "/ws/**", "/topic", "/app/**").permitAll()
+                                "/ws/**", "/topic", "/app/**", "/api/chats/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

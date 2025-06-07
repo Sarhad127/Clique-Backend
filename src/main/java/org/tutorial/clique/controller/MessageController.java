@@ -5,9 +5,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.tutorial.clique.dto.MessageDto;
+import org.tutorial.clique.model.Chat;
 import org.tutorial.clique.model.Message;
 import org.tutorial.clique.model.MessageStatus;
 import org.tutorial.clique.model.User;
+import org.tutorial.clique.service.ChatService;
 import org.tutorial.clique.service.MessageService;
 import org.tutorial.clique.repository.UserRepository;
 
@@ -23,6 +25,9 @@ public class MessageController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private ChatService chatService;
 
     @GetMapping
     public ResponseEntity<List<MessageDto>> getMessages(
@@ -40,9 +45,9 @@ public class MessageController {
                     .orElseThrow(() -> new RuntimeException("Sender not found"));
             User receiver = userRepository.findById(messageDto.getReceiverId())
                     .orElseThrow(() -> new RuntimeException("Receiver not found"));
-            Message newMessage = new Message(sender, receiver, messageDto.getContent(), LocalDateTime.now(), MessageStatus.SENT);
-            messageService.sendMessage(sender.getId(), receiver.getId(), messageDto.getContent());
-            MessageDto newMessageDto = MessageDto.fromEntity(newMessage);
+            Chat chat = chatService.getOrCreateChat(sender.getId(), receiver.getId());
+            Message savedMessage = messageService.sendMessage(sender.getId(), receiver.getId(), chat.getId(), messageDto.getContent());
+            MessageDto newMessageDto = MessageDto.fromEntity(savedMessage);
             return new ResponseEntity<>(newMessageDto, HttpStatus.CREATED);
         } catch (Exception e) {
             e.printStackTrace();
