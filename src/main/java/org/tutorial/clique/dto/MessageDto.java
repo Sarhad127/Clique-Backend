@@ -14,13 +14,17 @@ public class MessageDto {
     private LocalDateTime timestamp;
     private Long chatId;
     private Long groupId;
+    private String senderUsername;
+    private String senderAvatarUrl;
+    private String senderAvatarColor;
+    private String senderAvatarInitials;
 
     public static MessageDto fromEntity(Message message) {
         Long chatId = message.getChat() != null ? message.getChat().getId() : null;
         Long groupId = message.getGroup() != null ? message.getGroup().getId() : null;
         Long receiverId = message.getReceiver() != null ? message.getReceiver().getId() : null;
 
-        return new MessageDto(
+        MessageDto dto = new MessageDto(
                 message.getSender().getId(),
                 receiverId,
                 message.getContent(),
@@ -28,6 +32,13 @@ public class MessageDto {
                 chatId,
                 groupId
         );
+        dto.setSenderUsername(message.getSender().getUsernameForController());
+        dto.setSenderUsername(message.getSender().getUsernameForController());
+        dto.setSenderAvatarUrl(message.getSender().getAvatarUrl());
+        dto.setSenderAvatarColor(message.getSender().getAvatarColor());
+        dto.setSenderAvatarInitials(message.getSender().getAvatarInitials());
+
+        return dto;
     }
 
     public static List<MessageDto> fromEntities(List<Message> messages) {
@@ -45,6 +56,37 @@ public class MessageDto {
         this.timestamp = timestamp;
         this.chatId = chatId;
         this.groupId = groupId;
+    }
+
+    public String getSenderAvatarUrl() {
+        return senderAvatarUrl;
+    }
+
+    public void setSenderAvatarUrl(String senderAvatarUrl) {
+        this.senderAvatarUrl = senderAvatarUrl;
+    }
+
+    public String getSenderAvatarColor() {
+        return senderAvatarColor;
+    }
+
+    public void setSenderAvatarColor(String senderAvatarColor) {
+        this.senderAvatarColor = senderAvatarColor;
+    }
+
+    public String getSenderAvatarInitials() {
+        return senderAvatarInitials;
+    }
+
+    public void setSenderAvatarInitials(String senderAvatarInitials) {
+        this.senderAvatarInitials = senderAvatarInitials;
+    }
+    public String getSenderUsername() {
+        return senderUsername;
+    }
+
+    public void setSenderUsername(String senderUsername) {
+        this.senderUsername = senderUsername;
     }
 
     public Long getSenderId() {
