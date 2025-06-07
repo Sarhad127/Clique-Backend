@@ -40,13 +40,31 @@ public class GroupController {
         );
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<GroupDto> getGroup(@PathVariable Long id) {
-        Optional<Group> groupOpt = groupRepository.findById(id);
-        if (groupOpt.isEmpty()) {
-            return ResponseEntity.notFound().build();
+    @GetMapping
+    public ResponseEntity<?> getUserGroups(@RequestHeader("Authorization") String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        return ResponseEntity.ok(toDto(groupOpt.get()));
+        String token = authHeader.substring(7);
+        String email;
+        try {
+            email = jwtService.extractUsername(token);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        User user = userOpt.get();
+
+        Set<GroupDto> userGroups = user.getGroups()
+                .stream()
+                .map(this::toDto)
+                .collect(Collectors.toSet());
+
+        return ResponseEntity.ok(userGroups);
     }
 
     @PostMapping
