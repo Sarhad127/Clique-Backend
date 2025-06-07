@@ -7,13 +7,11 @@ import org.springframework.web.bind.annotation.*;
 import org.tutorial.clique.dto.MessageDto;
 import org.tutorial.clique.model.Chat;
 import org.tutorial.clique.model.Message;
-import org.tutorial.clique.model.MessageStatus;
 import org.tutorial.clique.model.User;
 import org.tutorial.clique.service.ChatService;
 import org.tutorial.clique.service.MessageService;
 import org.tutorial.clique.repository.UserRepository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -52,6 +50,18 @@ public class MessageController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/group")
+    public ResponseEntity<List<MessageDto>> getGroupMessages(@RequestParam("groupId") Long groupId) {
+        try {
+            List<Message> messages = messageService.getMessagesByGroupId(groupId);
+            List<MessageDto> messageDtos = MessageDto.fromEntities(messages);
+            return ResponseEntity.ok(messageDtos);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
         }
     }
 }

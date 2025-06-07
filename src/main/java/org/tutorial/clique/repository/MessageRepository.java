@@ -15,4 +15,5 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
             "ORDER BY m.timestamp ASC")
     List<Message> findBySenderAndReceiver(@Param("userId") Long userId, @Param("friendId") Long friendId);
 
+    List<Message> findByGroupIdOrderByTimestampAsc(Long groupId);
 }

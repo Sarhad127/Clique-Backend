@@ -7,13 +7,10 @@ import org.springframework.stereotype.Controller;
 import org.tutorial.clique.dto.MessageDto;
 import org.tutorial.clique.model.Chat;
 import org.tutorial.clique.model.Message;
-import org.tutorial.clique.model.MessageStatus;
 import org.tutorial.clique.model.User;
 import org.tutorial.clique.repository.UserRepository;
 import org.tutorial.clique.service.ChatService;
 import org.tutorial.clique.service.MessageService;
-
-import java.time.LocalDateTime;
 
 @Controller
 public class WebSocketChatController {
@@ -42,6 +39,28 @@ public class WebSocketChatController {
             Message savedMessage = messageService.sendMessage(sender.getId(), receiver.getId(), chat.getId(), messageDto.getContent());
             MessageDto outgoing = MessageDto.fromEntity(savedMessage);
             messagingTemplate.convertAndSend("/topic/messages/" + receiver.getId(), outgoing);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @MessageMapping("/group-chat.send")
+    public void sendGroupMessage(@Payload MessageDto messageDto) {
+        try {
+            User sender = userRepository.findById(messageDto.getSenderId())
+                    .orElseThrow(() -> new RuntimeException("Sender not found"));
+
+            Message savedMessage = messageService.sendGroupMessage(
+                    sender.getId(),
+                    messageDto.getGroupId(),
+                    messageDto.getContent()
+            );
+
+            MessageDto outgoing = MessageDto.fromEntity(savedMessage);
+            messagingTemplate.convertAndSend(
+                    "/topic/group-messages/" + messageDto.getGroupId(),
+                    outgoing
+            );
         } catch (Exception e) {
             e.printStackTrace();
         }
