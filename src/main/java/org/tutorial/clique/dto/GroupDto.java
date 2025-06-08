@@ -6,14 +6,14 @@ public class GroupDto {
 
     private Long id;
     private String title;
-    private Set<Long> userIds;
+    private Set<GroupMemberDto> members;
 
     public GroupDto() {}
 
-    public GroupDto(Long id, String title, Set<Long> userIds) {
+    public GroupDto(Long id, String title, Set<GroupMemberDto> members) {
         this.id = id;
         this.title = title;
-        this.userIds = userIds;
+        this.members = members;
     }
 
     public Long getId() { return id; }
@@ -22,6 +22,6 @@ public class GroupDto {
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
 
-    public Set<Long> getUserIds() { return userIds; }
-    public void setUserIds(Set<Long> userIds) { this.userIds = userIds; }
+    public Set<GroupMemberDto> getMembers() { return members; }
+    public void setMembers(Set<GroupMemberDto> members) { this.members = members; }
 }

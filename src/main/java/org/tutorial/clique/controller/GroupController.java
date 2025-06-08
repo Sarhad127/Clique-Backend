@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.tutorial.clique.dto.GroupDto;
+import org.tutorial.clique.dto.GroupMemberDto;
 import org.tutorial.clique.dto.InviteRequest;
 import org.tutorial.clique.model.Group;
 import org.tutorial.clique.model.User;
@@ -31,14 +32,27 @@ public class GroupController {
         this.jwtService = jwtService;
     }
 
+    private GroupMemberDto toGroupMemberDto(User user) {
+        return new GroupMemberDto(
+                user.getId(),
+                user.getUsernameForController(),
+                user.getAvatarUrl(),
+                user.getAvatarColor(),
+                user.getAvatarInitials()
+        );
+    }
+
     private GroupDto toDto(Group group) {
-        Set<Long> userIds = group.getUsers() != null
-                ? group.getUsers().stream().map(User::getId).collect(Collectors.toSet())
+        Set<GroupMemberDto> members = group.getUsers() != null
+                ? group.getUsers().stream()
+                .map(this::toGroupMemberDto)
+                .collect(Collectors.toSet())
                 : new HashSet<>();
+
         return new GroupDto(
                 group.getId(),
                 group.getTitle(),
-                userIds
+                members
         );
     }
 
@@ -89,8 +103,9 @@ public class GroupController {
         User creator = creatorOpt.get();
 
         Set<User> users = new HashSet<>();
-        if (groupDto.getUserIds() != null && !groupDto.getUserIds().isEmpty()) {
-            users = groupDto.getUserIds().stream()
+        if (groupDto.getMembers() != null && !groupDto.getMembers().isEmpty()) {
+            users = groupDto.getMembers().stream()
+                    .map(GroupMemberDto::getId)
                     .map(userRepository::findById)
                     .filter(Optional::isPresent)
                     .map(Optional::get)
