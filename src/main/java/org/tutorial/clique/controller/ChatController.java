@@ -50,4 +50,14 @@ public class ChatController {
                 .orElseThrow(() -> new RuntimeException("User not found"))
                 .getId();
     }
+
+    @DeleteMapping("/{chatId}")
+    public ResponseEntity<?> deleteChat(
+            @PathVariable Long chatId,
+            @RequestHeader("Authorization") String authHeader) {
+
+        Long userId = getUserIdFromAuthHeader(authHeader);
+        chatService.deleteChatForUser(chatId, userId);
+        return ResponseEntity.noContent().build();
+    }
 }

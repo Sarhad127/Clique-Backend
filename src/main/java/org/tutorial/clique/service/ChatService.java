@@ -35,4 +35,18 @@ public class ChatService {
         newChat.getParticipants().add(user2);
         return chatRepository.save(newChat);
     }
+
+    public void deleteChatForUser(Long chatId, Long userId) {
+        Chat chat = chatRepository.findById(chatId)
+                .orElseThrow(() -> new RuntimeException("Chat not found"));
+
+        boolean isParticipant = chat.getParticipants().stream()
+                .anyMatch(user -> user.getId().equals(userId));
+
+        if (!isParticipant) {
+            throw new RuntimeException("User not authorized to delete this chat");
+        }
+
+        chatRepository.delete(chat);
+    }
 }
