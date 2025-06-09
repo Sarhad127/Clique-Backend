@@ -7,6 +7,7 @@ public class GroupDto {
     private Long id;
     private String title;
     private Set<GroupMemberDto> members;
+    private String backgroundImageUrl;
 
     public GroupDto() {}
 
@@ -24,4 +25,11 @@ public class GroupDto {
 
     public Set<GroupMemberDto> getMembers() { return members; }
     public void setMembers(Set<GroupMemberDto> members) { this.members = members; }
+
+    public String getBackgroundImageUrl() {
+        return backgroundImageUrl;
+    }
+    public void setBackgroundImageUrl(String backgroundImageUrl) {
+        this.backgroundImageUrl = backgroundImageUrl;
+    }
 }

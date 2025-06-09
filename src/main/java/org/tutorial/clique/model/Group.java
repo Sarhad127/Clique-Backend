@@ -23,17 +23,25 @@ public class Group {
     )
     private Set<User> users = new HashSet<>();
 
-    public Group() {}
+    @Column(length = 2048)
+    private String backgroundImageUrl;
 
+    public Group() {}
     public Group(String title) {
         this.title = title;
     }
-
     public Long getId() { return id; }
-
+    public void setId(Long id) {
+        this.id = id;
+    }
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
-
     public Set<User> getUsers() { return users; }
     public void setUsers(Set<User> users) { this.users = users; }
+    public String getBackgroundImageUrl() {
+        return backgroundImageUrl;
+    }
+    public void setBackgroundImageUrl(String backgroundImageUrl) {
+        this.backgroundImageUrl = backgroundImageUrl;
+    }
 }
