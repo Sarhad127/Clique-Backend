@@ -118,10 +118,7 @@ public class UserController {
         user.setUsername(newUsername.trim());
         userRepository.save(user);
 
-        return ResponseEntity.ok(Map.of(
-                "message", "Username updated successfully",
-                "username", user.getUsernameForController()
-        ));
+        return ResponseEntity.ok(user);
     }
 
     @PutMapping("/description")
@@ -161,10 +158,7 @@ public class UserController {
         user.setDescription(newDescription.trim());
         userRepository.save(user);
 
-        return ResponseEntity.ok(Map.of(
-                "message", "Description updated successfully",
-                "description", user.getDescription()
-        ));
+        return ResponseEntity.ok(user);
     }
 
     @PutMapping("/avatar")
