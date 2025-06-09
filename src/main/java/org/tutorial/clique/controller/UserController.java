@@ -118,10 +118,7 @@ public class UserController {
         user.setUsername(newUsername.trim());
         userRepository.save(user);
 
-        return ResponseEntity.ok(Map.of(
-                "message", "Username updated successfully",
-                "username", user.getUsernameForController()
-        ));
+        return ResponseEntity.ok(user);
     }
 
     @PutMapping("/description")
@@ -161,9 +158,59 @@ public class UserController {
         user.setDescription(newDescription.trim());
         userRepository.save(user);
 
+        return ResponseEntity.ok(user);
+    }
+
+    @PutMapping("/avatar")
+    public ResponseEntity<?> updateAvatar(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestBody Map<String, String> requestBody) {
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String token = authHeader.substring(7);
+        String email;
+        try {
+            email = jwtService.extractUsername(token);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+        if (!jwtService.isTokenValid(token, userDetails)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+
+        User user = userOptional.get();
+
+        String avatarUrl = requestBody.get("avatarUrl");
+        String avatarColor = requestBody.get("avatarColor");
+        String avatarInitials = requestBody.get("avatarInitials");
+
+        if (avatarUrl != null) {
+            user.setAvatarUrl(avatarUrl.trim());
+        }
+        if (avatarColor != null) {
+            user.setAvatarColor(avatarColor.trim());
+        }
+        if (avatarInitials != null) {
+            user.setAvatarInitials(avatarInitials.trim());
+        }
+
+        userRepository.save(user);
+
         return ResponseEntity.ok(Map.of(
-                "message", "Description updated successfully",
-                "description", user.getDescription()
+                "message", "Avatar updated successfully",
+                "avatarUrl", user.getAvatarUrl() != null ? user.getAvatarUrl() : "",
+                "avatarColor", user.getAvatarColor() != null ? user.getAvatarColor() : "",
+                "avatarInitials", user.getAvatarInitials() != null ? user.getAvatarInitials() : ""
         ));
     }
 }

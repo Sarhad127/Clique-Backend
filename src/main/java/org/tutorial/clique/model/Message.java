@@ -17,7 +17,7 @@ public class Message {
     private User sender;
 
     @ManyToOne
-    @JoinColumn(name = "receiver_id", nullable = false)
+    @JoinColumn(name = "receiver_id")
     private User receiver;
 
     @Column(name = "content", nullable = false, columnDefinition = "TEXT")
@@ -29,6 +29,14 @@ public class Message {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private MessageStatus status;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "chat_id", nullable = true)
+    private Chat chat;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "group_id")
+    private Group group;
 
     public Message() {}
 
@@ -86,5 +94,21 @@ public class Message {
 
     public void setStatus(MessageStatus status) {
         this.status = status;
+    }
+
+    public Chat getChat() {
+        return chat;
+    }
+
+    public void setChat(Chat chat) {
+        this.chat = chat;
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
     }
 }

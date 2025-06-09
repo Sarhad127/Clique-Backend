@@ -46,6 +46,13 @@ public class User implements UserDetails {
     )
     private Set<User> friends = new HashSet<>();
 
+    @ManyToMany(mappedBy = "participants")
+    private Set<Chat> chats = new HashSet<>();
+
+    @ManyToMany(mappedBy = "users")
+    private Set<Group> groups = new HashSet<>();
+
+
     public User(String username, String email, String encode) {
         this.username = username;
         this.email = email;
@@ -171,5 +178,21 @@ public class User implements UserDetails {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Set<Chat> getChats() {
+        return chats;
+    }
+
+    public void setChats(Set<Chat> chats) {
+        this.chats = chats;
+    }
+
+    public Set<Group> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(Set<Group> groups) {
+        this.groups = groups;
     }
 }

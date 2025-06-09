@@ -45,6 +45,8 @@ public class AuthenticationService {
         }
 
         User user = new User(input.getUsername(), input.getEmail(), passwordEncoder.encode(input.getPassword()));
+        user.setAvatarUrl("https://cdn.iconscout.com/icon/free/png-256/free-avatar-icon-download-in-svg-png-gif-file-formats--user-student-avatars-flat-icons-pack-people-456332.png");
+        userRepository.save(user);
         sendVerificationEmail(user);
         userRepository.save(user);
     }
