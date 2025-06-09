@@ -164,4 +164,42 @@ public class GroupController {
         groupRepository.save(group);
         return ResponseEntity.ok(Map.of("message", "User invited successfully"));
     }
+
+    @DeleteMapping("/{groupId}/leave")
+    public ResponseEntity<?> leaveGroup(
+            @PathVariable Long groupId,
+            @RequestHeader("Authorization") String authHeader) {
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        String token = authHeader.substring(7);
+        String email;
+        try {
+            email = jwtService.extractUsername(token);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        User user = userOpt.get();
+
+        Optional<Group> groupOpt = groupRepository.findById(groupId);
+        if (groupOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Group not found");
+        }
+        Group group = groupOpt.get();
+
+        if (!group.getUsers().contains(user)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not a member of this group");
+        }
+
+        group.getUsers().remove(user);
+        groupRepository.save(group);
+
+        return ResponseEntity.noContent().build();
+    }
 }
