@@ -11,6 +11,7 @@ import org.tutorial.clique.model.User;
 import org.tutorial.clique.repository.GroupRepository;
 import org.tutorial.clique.repository.UserRepository;
 import org.tutorial.clique.service.JwtService;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -25,11 +26,16 @@ public class GroupController {
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
     private final JwtService jwtService;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    public GroupController(GroupRepository groupRepository, UserRepository userRepository, JwtService jwtService) {
+    public GroupController(GroupRepository groupRepository,
+                           UserRepository userRepository,
+                           JwtService jwtService,
+                           SimpMessagingTemplate messagingTemplate) {
         this.groupRepository = groupRepository;
         this.userRepository = userRepository;
         this.jwtService = jwtService;
+        this.messagingTemplate = messagingTemplate;
     }
 
     private GroupMemberDto toGroupMemberDto(User user) {
@@ -165,6 +171,18 @@ public class GroupController {
         }
         group.getUsers().add(userToInvite);
         groupRepository.save(group);
+
+        GroupMemberDto newMemberDto = toGroupMemberDto(userToInvite);
+        messagingTemplate.convertAndSendToUser(
+                userToInvite.getEmail(),
+                "/queue/invite",
+                Map.of(
+                        "groupId", groupId,
+                        "groupTitle", group.getTitle(),
+                        "newMember", newMemberDto
+                )
+        );
+
         return ResponseEntity.ok(Map.of("message", "User invited successfully"));
     }
 
@@ -248,6 +266,11 @@ public class GroupController {
 
         group.setBackgroundImageUrl(newBackgroundUrl);
         groupRepository.save(group);
+
+        messagingTemplate.convertAndSend(
+                "/topic/group-background/" + groupId,
+                Map.of("groupId", groupId, "backgroundImageUrl", newBackgroundUrl)
+        );
 
         return ResponseEntity.ok(Map.of("message", "Background updated successfully", "backgroundImageUrl", newBackgroundUrl));
     }

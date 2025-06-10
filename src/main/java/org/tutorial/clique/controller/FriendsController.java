@@ -90,4 +90,58 @@ public class FriendsController {
 
         return ResponseEntity.ok("Friend added successfully.");
     }
+
+    @DeleteMapping("/remove")
+    public ResponseEntity<String> removeFriend(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestParam("identifier") String identifier
+    ) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing or invalid Authorization header.");
+        }
+
+        String token = authHeader.substring(7);
+        String requesterEmail;
+        try {
+            requesterEmail = jwtService.extractUsername(token);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token.");
+        }
+
+        UserDetails userDetails = myUserDetailService.loadUserByUsername(requesterEmail);
+        if (!jwtService.isTokenValid(token, userDetails)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token validation failed.");
+        }
+
+        Optional<User> requesterOpt = userRepository.findByEmail(requesterEmail);
+        if (requesterOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Requesting user not found.");
+        }
+
+        Optional<User> friendOpt = userRepository.findByUsername(identifier);
+        if (friendOpt.isEmpty()) {
+            friendOpt = userRepository.findByEmail(identifier);
+        }
+
+        if (friendOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+        }
+
+        User requester = requesterOpt.get();
+        User friend = friendOpt.get();
+
+        if (!requester.getFriends().contains(friend)) {
+            return ResponseEntity.badRequest().body("User is not in your friend list.");
+        }
+
+        requester.getFriends().remove(friend);
+        friend.getFriends().remove(requester);
+        userRepository.save(requester);
+        userRepository.save(friend);
+
+        String notificationMessage = requester.getUsername() + " removed you from their friends list.";
+        messagingTemplate.convertAndSend("/server/friendRemoved/" + friend.getUsername(), notificationMessage);
+
+        return ResponseEntity.ok("Friend removed successfully.");
+    }
 }
