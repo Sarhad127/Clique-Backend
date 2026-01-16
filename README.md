@@ -1,4 +1,4 @@
-Java Backend
+Clique Java Backend
 
 Spring Boot backend for the Clique chat application. Handles authentication, chat messaging, friend management, and real-time communication via WebSockets.
 
